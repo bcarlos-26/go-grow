@@ -1,4 +1,4 @@
-export const STORAGE_KEY = "growthbook-v1";
+export const STORAGE_KEY = "go-grow-v1";
 
 export const KID_COLORS = [
   "#E07B6A", // terracotta

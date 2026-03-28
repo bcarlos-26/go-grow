@@ -39,7 +39,7 @@ export default function HomeScreen({ state, onStateChange, onSelectKid }: Props)
             className="text-3xl font-bold italic"
             style={{ color: "#2C1810", fontFamily: "'Playfair Display', serif" }}
           >
-            GrowthBook
+            Go Grow
           </h1>
           <span
             className="text-sm px-3 py-1 rounded-full"
