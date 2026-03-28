@@ -3,6 +3,7 @@ import { AppState, Kid, Measurement } from "../types";
 import { fmtHeight } from "../utils/units";
 import AddMeasurementModal from "../components/AddMeasurementModal";
 import LogView from "../components/LogView";
+import WallView from "../components/WallView";
 
 type Tab = "wall" | "log";
 
@@ -14,7 +15,7 @@ type Props = {
   initialTab?: Tab;
 };
 
-export default function KidScreen({ kid, state, onStateChange, onBack, initialTab = "log" }: Props) {
+export default function KidScreen({ kid, state, onStateChange, onBack, initialTab = "wall" }: Props) {
   const [tab, setTab] = useState<Tab>(initialTab);
   const [addOpen, setAddOpen] = useState(false);
 
@@ -113,14 +114,14 @@ export default function KidScreen({ kid, state, onStateChange, onBack, initialTa
       </div>
 
       {/* Tab content */}
-      <div className="flex-1 px-5 pt-5 overflow-y-auto">
+      <div className={`flex-1 overflow-y-auto ${tab === "wall" ? "pt-4" : "px-5 pt-5"}`}>
         {tab === "wall" && (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="text-5xl mb-3">🚪</div>
-            <p className="text-sm" style={{ color: "#9B7A5A", fontFamily: "'Lora', serif", lineHeight: "1.6" }}>
-              The wall view is coming in Phase 3. Every mark {kid.name} earns will show up here — climbing the frame, season by season.
-            </p>
-          </div>
+          <WallView
+            kid={kid}
+            measurements={kidMeasurements}
+            units={state.units}
+            onAddMeasurement={() => setAddOpen(true)}
+          />
         )}
 
         {tab === "log" && (
