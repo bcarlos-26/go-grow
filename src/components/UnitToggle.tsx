@@ -1,4 +1,4 @@
-import { Units } from "../types";
+import type { Units } from "../types";
 
 type Props = {
   units: Units;

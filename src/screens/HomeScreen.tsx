@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AppState, Kid } from "../types";
+import type { AppState, Kid } from "../types";
 import { getCurrentSeason } from "../utils/seasons";
 import { SEASONS } from "../constants";
 import KidCard from "../components/KidCard";

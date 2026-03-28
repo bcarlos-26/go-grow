@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import Modal from "./Modal";
-import { Kid } from "../types";
+import type { Kid } from "../types";
 import { KID_COLORS } from "../constants";
 
 type Props = {

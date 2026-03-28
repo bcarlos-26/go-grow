@@ -1,4 +1,4 @@
-import { Kid, Measurement, Units } from "../types";
+import type { Kid, Measurement, Units } from "../types";
 import { fmtHeight } from "../utils/units";
 import { seasonLabel } from "../utils/seasons";
 

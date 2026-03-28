@@ -1,4 +1,4 @@
-import { AppState } from "../types";
+import type { AppState } from "../types";
 import { STORAGE_KEY } from "../constants";
 
 const DEFAULT_STATE: AppState = {

@@ -1,4 +1,4 @@
-import { Units } from "../types";
+import type { Units } from "../types";
 
 export function fmtHeight(cm: number, units: Units): string {
   if (units.height === "cm") return `${Math.round(cm)} cm`;

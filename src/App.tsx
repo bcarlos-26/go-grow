@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AppState, Kid } from "./types";
+import type { AppState, Kid } from "./types";
 import { loadState, saveState } from "./utils/storage";
 import HomeScreen from "./screens/HomeScreen";
 import KidScreen from "./screens/KidScreen";

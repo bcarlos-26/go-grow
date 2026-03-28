@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AppState, Kid, Measurement } from "../types";
+import type { AppState, Kid, Measurement } from "../types";
 import { fmtHeight } from "../utils/units";
 import AddMeasurementModal from "../components/AddMeasurementModal";
 import LogView from "../components/LogView";

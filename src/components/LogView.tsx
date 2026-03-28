@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Kid, Measurement, Units } from "../types";
+import type { Kid, Measurement, Units } from "../types";
 import { fmtHeight, fmtWeight } from "../utils/units";
 import { getSeason, seasonLabel } from "../utils/seasons";
 import { ageAt } from "../utils/age";

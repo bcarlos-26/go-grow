@@ -1,4 +1,5 @@
-import { Season, SEASONS } from "../constants";
+import { SEASONS } from "../constants"
+import type { Season } from "../constants";
 
 export function getSeason(isoDate: string): Season {
   const month = new Date(isoDate).getMonth(); // 0-indexed

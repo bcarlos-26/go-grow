@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import Modal from "./Modal";
-import { Kid, Measurement, Units } from "../types";
+import type { Kid, Measurement, Units } from "../types";
 import { getSeason, seasonLabel } from "../utils/seasons";
 import { SEASONS } from "../constants";
 import { cmFromInput, kgFromInput } from "../utils/units";

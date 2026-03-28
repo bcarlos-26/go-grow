@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Kid, Measurement, Units } from "../types";
+import type { Kid, Measurement, Units } from "../types";
 import { getSeason } from "../utils/seasons";
 import { SEASONS } from "../constants";
 import { fmtHeight } from "../utils/units";

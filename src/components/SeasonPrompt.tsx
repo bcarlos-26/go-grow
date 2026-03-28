@@ -1,4 +1,4 @@
-import { Kid, Measurement } from "../types";
+import type { Kid, Measurement } from "../types";
 import { getCurrentSeason, getSeason } from "../utils/seasons";
 import { SEASONS } from "../constants";
 
