@@ -11,11 +11,11 @@ type Props = {
   state: AppState;
   onStateChange: (s: AppState) => void;
   onSelectKid: (kid: Kid) => void;
+  onAddMeasurementForKid: (kid: Kid) => void;
 };
 
-export default function HomeScreen({ state, onStateChange, onSelectKid }: Props) {
+export default function HomeScreen({ state, onStateChange, onSelectKid, onAddMeasurementForKid }: Props) {
   const [addKidOpen, setAddKidOpen] = useState(false);
-  const [addMeasurementKid, setAddMeasurementKid] = useState<Kid | null>(null);
 
   const season = getCurrentSeason();
   const { emoji, label } = SEASONS[season];
@@ -68,7 +68,7 @@ export default function HomeScreen({ state, onStateChange, onSelectKid }: Props)
           <SeasonPrompt
             kids={state.kids}
             measurements={state.measurements}
-            onAddMeasurement={(kid) => setAddMeasurementKid(kid)}
+            onAddMeasurement={onAddMeasurementForKid}
           />
         )}
 
@@ -131,16 +131,6 @@ export default function HomeScreen({ state, onStateChange, onSelectKid }: Props)
         onAdd={handleAddKid}
       />
 
-      {/* Placeholder — Add Measurement modal attached to season prompt, wired in Phase 2 */}
-      {addMeasurementKid && (
-        <div
-          className="fixed bottom-6 left-5 right-5 rounded-xl px-4 py-3 text-sm text-center"
-          style={{ background: addMeasurementKid.color, color: "#fff", fontFamily: "'Lora', serif" }}
-        >
-          Add measurement for {addMeasurementKid.name} — coming in Phase 2
-          <button className="ml-3 underline" onClick={() => setAddMeasurementKid(null)}>dismiss</button>
-        </div>
-      )}
     </div>
   );
 }
