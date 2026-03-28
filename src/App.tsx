@@ -23,7 +23,7 @@ export default function App() {
         state={state}
         onStateChange={setState}
         onBack={() => setView({ screen: "home" })}
-        initialTab={view.openAdd ? "log" : "log"}
+        autoOpenAdd={view.openAdd ?? false}
       />
     );
   }

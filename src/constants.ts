@@ -15,17 +15,18 @@ export const SEASONS: Record<
   Season,
   { label: string; emoji: string; color: string; bgTint: string }
 > = {
-  spring: { label: "Spring", emoji: "🌸", color: "#5A9E5A", bgTint: "#EFF8EF" },
-  summer: { label: "Summer", emoji: "☀️", color: "#CC8800", bgTint: "#FEF8EC" },
-  fall:   { label: "Fall",   emoji: "🍂", color: "#B85020", bgTint: "#FDF0E8" },
-  winter: { label: "Winter", emoji: "❄️", color: "#3A78C2", bgTint: "#EDF3FC" },
+  spring: { label: "Spring", emoji: "🌸", color: "#2D8653", bgTint: "#EBF7F0" },
+  summer: { label: "Summer", emoji: "☀️", color: "#D97706", bgTint: "#FEF3C7" },
+  fall:   { label: "Fall",   emoji: "🍂", color: "#C2410C", bgTint: "#FEE8DF" },
+  winter: { label: "Winter", emoji: "❄️", color: "#2563EB", bgTint: "#EFF6FF" },
 };
 
-export const PALETTE = {
-  bg: "#F9F3E8",
-  surface: "#FFFFFF",
-  border: "#E5D9BC",
-  borderStrong: "#D5C5A0",
-  textPrimary: "#2C1810",
-  textSecondary: "#9B7A5A",
+export const T = {
+  bg:       "#FAFAFA",
+  surface:  "#FFFFFF",
+  border:   "#EBEBEB",
+  borderMd: "#E0E0E0",
+  text:     "#111111",
+  textMd:   "#555555",
+  textSm:   "#999999",
 };

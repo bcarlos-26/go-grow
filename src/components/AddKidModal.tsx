@@ -2,7 +2,7 @@ import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import Modal from "./Modal";
 import type { Kid } from "../types";
-import { KID_COLORS } from "../constants";
+import { KID_COLORS, T } from "../constants";
 
 type Props = {
   open: boolean;
@@ -36,35 +36,34 @@ export default function AddKidModal({ open, onClose, onAdd }: Props) {
       color,
       createdAt: new Date().toISOString(),
     });
-    setName("");
-    setBirthday("");
-    setColor(KID_COLORS[0]);
+    setName(""); setBirthday(""); setColor(KID_COLORS[0]);
     onClose();
   }
 
-  const inputStyle = {
-    background: "#FFFFFF",
-    border: "1px solid #D5C5A0",
-    borderRadius: "10px",
-    padding: "10px 14px",
-    fontFamily: "'Lora', serif",
-    color: "#2C1810",
+  const inputStyle: React.CSSProperties = {
     width: "100%",
-    fontSize: "16px",
+    background: T.surface,
+    border: `1px solid ${T.borderMd}`,
+    borderRadius: 10,
+    padding: "11px 14px",
+    fontFamily: "'DM Sans', sans-serif",
+    fontSize: 15,
+    color: T.text,
+    outline: "none",
   };
 
-  const labelStyle = {
+  const labelStyle: React.CSSProperties = {
     display: "block",
-    fontSize: "13px",
-    fontFamily: "'Lora', serif",
-    color: "#9B7A5A",
-    marginBottom: "6px",
+    fontFamily: "'DM Sans', sans-serif",
+    fontSize: 13,
+    fontWeight: 500,
+    color: T.textMd,
+    marginBottom: 7,
   };
 
   return (
     <Modal open={open} onClose={onClose} title="Add a child">
-      <div className="flex flex-col gap-5">
-        {/* Name */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         <div>
           <label style={labelStyle}>Name</label>
           <input
@@ -77,9 +76,8 @@ export default function AddKidModal({ open, onClose, onAdd }: Props) {
           />
         </div>
 
-        {/* Birthday */}
         <div>
-          <label style={labelStyle}>Birthday (optional)</label>
+          <label style={labelStyle}>Birthday <span style={{ color: T.textSm, fontWeight: 400 }}>(optional)</span></label>
           <input
             type="date"
             value={birthday}
@@ -90,20 +88,24 @@ export default function AddKidModal({ open, onClose, onAdd }: Props) {
           />
         </div>
 
-        {/* Color */}
         <div>
           <label style={labelStyle}>Colour</label>
-          <div className="flex gap-3">
+          <div style={{ display: "flex", gap: 12 }}>
             {KID_COLORS.map((c) => (
               <button
                 key={c}
                 onClick={() => setColor(c)}
-                className="w-9 h-9 rounded-full transition-transform"
                 style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "50%",
                   background: c,
+                  border: "none",
+                  cursor: "pointer",
                   outline: color === c ? `3px solid ${c}` : "none",
-                  outlineOffset: "2px",
-                  transform: color === c ? "scale(1.1)" : "scale(1)",
+                  outlineOffset: 2,
+                  transform: color === c ? "scale(1.15)" : "scale(1)",
+                  transition: "transform 0.15s",
                 }}
               />
             ))}
@@ -111,15 +113,25 @@ export default function AddKidModal({ open, onClose, onAdd }: Props) {
         </div>
 
         {error && (
-          <p className="text-sm" style={{ color: "#B85020", fontFamily: "'Lora', serif" }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#C2410C", margin: 0 }}>
             {error}
           </p>
         )}
 
         <button
           onClick={handleSubmit}
-          className="w-full py-3 rounded-xl font-semibold text-base transition-opacity hover:opacity-90"
-          style={{ background: "#2C1810", color: "#F9F3E8", fontFamily: "'Playfair Display', serif" }}
+          style={{
+            width: "100%",
+            background: T.text,
+            color: "#fff",
+            fontFamily: "'DM Sans', sans-serif",
+            fontWeight: 600,
+            fontSize: 15,
+            borderRadius: 12,
+            padding: "14px 0",
+            border: "none",
+            cursor: "pointer",
+          }}
         >
           Add {name.trim() || "child"}
         </button>

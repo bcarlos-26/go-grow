@@ -1,22 +1,14 @@
 import { useEffect, type ReactNode } from "react";
+import { T } from "../constants";
 
 type ModalProps = {
   open: boolean;
   onClose: () => void;
   title: string;
   children: ReactNode;
-  accentColor?: string;
-  accentBg?: string;
 };
 
-export default function Modal({
-  open,
-  onClose,
-  title,
-  children,
-  accentColor = "#2C1810",
-  accentBg = "#F9F3E8",
-}: ModalProps) {
+export default function Modal({ open, onClose, title, children }: ModalProps) {
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
@@ -27,35 +19,80 @@ export default function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end"
-      style={{ background: "rgba(44, 24, 16, 0.4)" }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 50,
+        display: "flex",
+        alignItems: "flex-end",
+        background: "rgba(0,0,0,0.4)",
+        backdropFilter: "blur(4px)",
+        WebkitBackdropFilter: "blur(4px)",
+      }}
       onClick={onClose}
     >
       <div
-        className="w-full rounded-t-2xl shadow-2xl animate-slide-up"
-        style={{ background: accentBg, maxHeight: "90vh", overflowY: "auto", paddingBottom: "env(safe-area-inset-bottom, 44px)" }}
+        className="animate-slide-up"
+        style={{
+          width: "100%",
+          maxWidth: 480,
+          margin: "0 auto",
+          background: T.surface,
+          borderRadius: "22px 22px 0 0",
+          maxHeight: "92vh",
+          overflowY: "auto",
+          paddingBottom: "env(safe-area-inset-bottom, 28px)",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Handle bar */}
-        <div className="flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 rounded-full" style={{ background: "#D5C5A0" }} />
+        {/* Handle */}
+        <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 4px" }}>
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: T.borderMd }} />
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: "1px solid #E5D9BC" }}>
-          <h2 className="text-xl font-semibold" style={{ color: accentColor, fontFamily: "'Playfair Display', serif" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "12px 20px 16px",
+            borderBottom: `1px solid ${T.border}`,
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontWeight: 600,
+              fontSize: 17,
+              color: T.text,
+              margin: 0,
+            }}
+          >
             {title}
           </h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full text-lg leading-none"
-            style={{ background: "#E5D9BC", color: "#9B7A5A" }}
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: "50%",
+              background: T.border,
+              border: "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 18,
+              color: T.textSm,
+              cursor: "pointer",
+              lineHeight: 1,
+            }}
           >
             ×
           </button>
         </div>
 
-        <div className="px-6 py-5">{children}</div>
+        <div style={{ padding: "20px 20px" }}>{children}</div>
       </div>
     </div>
   );

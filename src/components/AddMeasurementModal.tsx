@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import Modal from "./Modal";
 import type { Kid, Measurement, Units } from "../types";
 import { getSeason, seasonLabel } from "../utils/seasons";
-import { SEASONS } from "../constants";
+import { SEASONS, T } from "../constants";
 import { cmFromInput, kgFromInput } from "../utils/units";
 
 type Props = {
@@ -25,25 +25,19 @@ export default function AddMeasurementModal({ open, onClose, kid, units, onAdd }
   const [error, setError] = useState("");
 
   const season = getSeason(date || today);
-  const { emoji, color, bgTint } = SEASONS[season];
+  const { emoji, color: seasonColor, bgTint } = SEASONS[season];
 
   function validate(): number | null {
     let cm: number;
     if (units.height === "cm") {
       cm = parseFloat(heightCm);
-      if (isNaN(cm) || cm < 30 || cm > 250) {
-        setError("Height must be between 30 and 250 cm.");
-        return null;
-      }
+      if (isNaN(cm) || cm < 30 || cm > 250) { setError("Height must be between 30 and 250 cm."); return null; }
     } else {
       const ft = parseFloat(heightFt) || 0;
       const inches = parseFloat(heightIn) || 0;
       if (ft === 0 && inches === 0) { setError("Height is required."); return null; }
       cm = cmFromInput("", units, heightFt, heightIn);
-      if (cm < 30 || cm > 250) {
-        setError("Height must be between 1′ and 8′.");
-        return null;
-      }
+      if (cm < 30 || cm > 250) { setError("Height must be between 1′ and 8′."); return null; }
     }
     return cm;
   }
@@ -70,49 +64,51 @@ export default function AddMeasurementModal({ open, onClose, kid, units, onAdd }
       weightKg,
       createdAt: new Date().toISOString(),
     });
-
-    // Reset
-    setDate(today);
-    setHeightCm("");
-    setHeightFt("");
-    setHeightIn("");
-    setWeight("");
+    setDate(today); setHeightCm(""); setHeightFt(""); setHeightIn(""); setWeight("");
     onClose();
   }
 
-  const inputStyle = {
-    background: "#FFFFFF",
-    border: "1px solid #D5C5A0",
-    borderRadius: "10px",
-    padding: "10px 14px",
-    fontFamily: "'Lora', serif",
-    color: "#2C1810",
-    fontSize: "16px",
+  const inputStyle: React.CSSProperties = {
+    background: T.surface,
+    border: `1px solid ${T.borderMd}`,
+    borderRadius: 10,
+    padding: "11px 14px",
+    fontFamily: "'DM Sans', sans-serif",
+    fontSize: 15,
+    color: T.text,
+    outline: "none",
   };
 
-  const labelStyle = {
+  const labelStyle: React.CSSProperties = {
     display: "block",
-    fontSize: "13px",
-    fontFamily: "'Lora', serif",
-    color: "#9B7A5A",
-    marginBottom: "6px",
+    fontFamily: "'DM Sans', sans-serif",
+    fontSize: 13,
+    fontWeight: 500,
+    color: T.textMd,
+    marginBottom: 7,
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={`Add measurement`} accentColor={color} accentBg={bgTint}>
-      <div className="flex flex-col gap-5">
-        {/* Kid + season badge */}
-        <div className="flex items-center gap-3">
-          <div
-            className="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold"
-            style={{ background: kid.color, fontFamily: "'Playfair Display', serif" }}
-          >
-            {kid.name[0].toUpperCase()}
-          </div>
-          <div>
-            <p className="font-semibold text-sm" style={{ color: "#2C1810", fontFamily: "'Playfair Display', serif" }}>{kid.name}</p>
-            <p className="text-xs" style={{ color, fontFamily: "'Lora', serif" }}>{emoji} {seasonLabel(date || today)}</p>
-          </div>
+    <Modal open={open} onClose={onClose} title="Add measurement">
+      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+
+        {/* Season pill */}
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            background: bgTint,
+            border: `1px solid ${seasonColor}40`,
+            borderRadius: 10,
+            padding: "8px 14px",
+            alignSelf: "flex-start",
+          }}
+        >
+          <div style={{ width: 8, height: 8, borderRadius: "50%", background: seasonColor }} />
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500, color: seasonColor }}>
+            {emoji} {seasonLabel(date || today)}
+          </span>
         </div>
 
         {/* Date */}
@@ -131,7 +127,7 @@ export default function AddMeasurementModal({ open, onClose, kid, units, onAdd }
         <div>
           <label style={labelStyle}>Height</label>
           {units.height === "cm" ? (
-            <div className="flex items-center gap-2">
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <input
                 type="number"
                 placeholder="e.g. 95"
@@ -140,36 +136,24 @@ export default function AddMeasurementModal({ open, onClose, kid, units, onAdd }
                 style={{ ...inputStyle, flex: 1 }}
                 inputMode="decimal"
               />
-              <span style={{ color: "#9B7A5A", fontFamily: "'Lora', serif", fontSize: "14px" }}>cm</span>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: T.textSm }}>cm</span>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                placeholder="ft"
-                value={heightFt}
-                onChange={(e) => setHeightFt(e.target.value)}
-                style={{ ...inputStyle, width: "80px" }}
-                inputMode="numeric"
-              />
-              <span style={{ color: "#9B7A5A", fontFamily: "'Lora', serif" }}>′</span>
-              <input
-                type="number"
-                placeholder="in"
-                value={heightIn}
-                onChange={(e) => setHeightIn(e.target.value)}
-                style={{ ...inputStyle, width: "80px" }}
-                inputMode="decimal"
-              />
-              <span style={{ color: "#9B7A5A", fontFamily: "'Lora', serif" }}>″</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <input type="number" placeholder="ft" value={heightFt} onChange={(e) => setHeightFt(e.target.value)} style={{ ...inputStyle, width: 72 }} inputMode="numeric" />
+              <span style={{ color: T.textSm }}>′</span>
+              <input type="number" placeholder="in" value={heightIn} onChange={(e) => setHeightIn(e.target.value)} style={{ ...inputStyle, width: 72 }} inputMode="decimal" />
+              <span style={{ color: T.textSm }}>″</span>
             </div>
           )}
         </div>
 
-        {/* Weight (optional) */}
+        {/* Weight */}
         <div>
-          <label style={labelStyle}>Weight <span style={{ opacity: 0.6 }}>(optional)</span></label>
-          <div className="flex items-center gap-2">
+          <label style={labelStyle}>
+            Weight <span style={{ color: T.textSm, fontWeight: 400 }}>(optional)</span>
+          </label>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <input
               type="number"
               placeholder={units.weight === "kg" ? "e.g. 15.2" : "e.g. 33.5"}
@@ -178,18 +162,28 @@ export default function AddMeasurementModal({ open, onClose, kid, units, onAdd }
               style={{ ...inputStyle, flex: 1 }}
               inputMode="decimal"
             />
-            <span style={{ color: "#9B7A5A", fontFamily: "'Lora', serif", fontSize: "14px" }}>{units.weight}</span>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: T.textSm }}>{units.weight}</span>
           </div>
         </div>
 
         {error && (
-          <p className="text-sm" style={{ color: "#B85020", fontFamily: "'Lora', serif" }}>{error}</p>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#C2410C", margin: 0 }}>{error}</p>
         )}
 
         <button
           onClick={handleSubmit}
-          className="w-full py-3 rounded-xl font-semibold text-base transition-opacity hover:opacity-90"
-          style={{ background: kid.color, color: "#fff", fontFamily: "'Playfair Display', serif" }}
+          style={{
+            width: "100%",
+            background: kid.color,
+            color: "#fff",
+            fontFamily: "'DM Sans', sans-serif",
+            fontWeight: 600,
+            fontSize: 15,
+            borderRadius: 12,
+            padding: "14px 0",
+            border: "none",
+            cursor: "pointer",
+          }}
         >
           Save mark
         </button>

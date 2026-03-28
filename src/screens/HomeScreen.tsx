@@ -1,11 +1,19 @@
 import { useState } from "react";
 import type { AppState, Kid } from "../types";
-import { getCurrentSeason } from "../utils/seasons";
-import { SEASONS } from "../constants";
-import KidCard from "../components/KidCard";
-import UnitToggle from "../components/UnitToggle";
-import SeasonPrompt from "../components/SeasonPrompt";
+import { getCurrentSeason, getSeason } from "../utils/seasons";
+import { SEASONS, T } from "../constants";
+import { fmtHeight } from "../utils/units";
 import AddKidModal from "../components/AddKidModal";
+
+const TITLE_LETTERS = [
+  { char: "G", color: "#F5A623" },
+  { char: "o", color: "#E91E63" },
+  { char: " ", color: "transparent" },
+  { char: "G", color: "#2196F3" },
+  { char: "r", color: "#4CAF50" },
+  { char: "o", color: "#FF5722" },
+  { char: "w", color: "#9C27B0" },
+];
 
 type Props = {
   state: AppState;
@@ -17,120 +25,197 @@ type Props = {
 export default function HomeScreen({ state, onStateChange, onSelectKid, onAddMeasurementForKid }: Props) {
   const [addKidOpen, setAddKidOpen] = useState(false);
 
-  const season = getCurrentSeason();
-  const { emoji, label } = SEASONS[season];
+  const currentSeason = getCurrentSeason();
+  const currentYear = new Date().getFullYear();
+  const { emoji, color: sColor, bgTint } = SEASONS[currentSeason];
+
+  const kidsNeedingMeasurement = state.kids.filter((kid) => {
+    const latest = state.measurements
+      .filter((m) => m.kidId === kid.id)
+      .sort((a, b) => b.date.localeCompare(a.date))[0];
+    if (!latest) return true;
+    return getSeason(latest.date) !== currentSeason || new Date(latest.date).getFullYear() !== currentYear;
+  });
 
   function handleAddKid(kid: Kid) {
     onStateChange({ ...state, kids: [...state.kids, kid] });
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#F9F3E8" }}>
-      {/* Header */}
-      <div
-        className="px-5 pt-12 pb-6"
-        style={{
-          background: "linear-gradient(180deg, #EDE0C4 0%, #F9F3E8 100%)",
-          borderBottom: "1px solid #E5D9BC",
-        }}
-      >
-        <div className="flex items-end justify-between mb-1">
-          <h1
-            className="text-3xl font-bold italic"
-            style={{ color: "#2C1810", fontFamily: "'Playfair Display', serif" }}
-          >
-            Go Grow
-          </h1>
-          <span
-            className="text-sm px-3 py-1 rounded-full"
-            style={{ background: SEASONS[season].bgTint, color: SEASONS[season].color, fontFamily: "'Lora', serif", border: `1px solid ${SEASONS[season].color}40` }}
-          >
-            {emoji} {label}
-          </span>
+    <div style={{ background: T.bg, minHeight: "100svh", paddingBottom: 100 }}>
+      {/* Title area */}
+      <div style={{ paddingTop: "25vh", paddingLeft: 24, paddingRight: 24 }}>
+        {/* Go Grow title */}
+        <div style={{ display: "flex", alignItems: "baseline", flexWrap: "nowrap", whiteSpace: "nowrap", marginBottom: 8 }}>
+          {TITLE_LETTERS.map((l, i) =>
+            l.char === " " ? (
+              <span key={i} style={{ width: 14, display: "inline-block" }} />
+            ) : (
+              <span
+                key={i}
+                style={{
+                  fontFamily: "'Fredoka', sans-serif",
+                  fontWeight: 600,
+                  fontSize: "min(72px, 18vw)",
+                  color: l.color,
+                  lineHeight: 1,
+                }}
+              >
+                {l.char}
+              </span>
+            )
+          )}
         </div>
-        <p className="text-sm" style={{ color: "#9B7A5A", fontFamily: "'Lora', serif" }}>
-          Like the marks on the doorframe, but on your phone.
+
+        {/* Subtitle */}
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400, fontSize: 17, color: T.textMd, margin: "0 0 32px" }}>
+          Record your child's growth over time
         </p>
 
-        {/* Unit toggle */}
-        <div className="mt-4">
-          <UnitToggle
-            units={state.units}
-            onChange={(units) => onStateChange({ ...state, units })}
-          />
-        </div>
-      </div>
-
-      {/* Body */}
-      <div className="px-5 pt-5 pb-24">
-        {/* Season prompt */}
-        {state.kids.length > 0 && (
-          <SeasonPrompt
-            kids={state.kids}
-            measurements={state.measurements}
-            onAddMeasurement={onAddMeasurementForKid}
-          />
-        )}
-
-        {/* Kids list or empty state */}
-        {state.kids.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="text-6xl mb-4">📏</div>
-            <h2
-              className="text-xl font-semibold mb-2"
-              style={{ color: "#2C1810", fontFamily: "'Playfair Display', serif" }}
-            >
-              Start tracking
-            </h2>
-            <p
-              className="text-sm max-w-xs"
-              style={{ color: "#9B7A5A", fontFamily: "'Lora', serif", lineHeight: "1.6" }}
-            >
-              Add a child to start recording their height each season. Every mark tells the story.
-            </p>
-            <button
-              onClick={() => setAddKidOpen(true)}
-              className="mt-6 px-6 py-3 rounded-xl font-semibold transition-opacity hover:opacity-90"
-              style={{ background: "#2C1810", color: "#F9F3E8", fontFamily: "'Playfair Display', serif" }}
-            >
-              Add your first child
-            </button>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {state.kids.map((kid) => (
-              <KidCard
+        {/* Season nudge pills */}
+        {kidsNeedingMeasurement.length > 0 && (
+          <div style={{ marginBottom: 28, display: "flex", flexDirection: "column", gap: 8 }}>
+            {kidsNeedingMeasurement.map((kid) => (
+              <button
                 key={kid.id}
-                kid={kid}
-                measurements={state.measurements}
-                units={state.units}
-                onClick={() => onSelectKid(kid)}
-              />
+                onClick={() => onAddMeasurementForKid(kid)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  background: bgTint,
+                  border: `1px solid ${sColor}40`,
+                  borderRadius: 10,
+                  padding: "10px 14px",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  width: "100%",
+                }}
+              >
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: sColor, flexShrink: 0, display: "inline-block" }} />
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: sColor, fontWeight: 500 }}>
+                  {emoji} Time to measure {kid.name}
+                </span>
+              </button>
             ))}
+          </div>
+        )}
 
-            {/* Add child button */}
-            <button
-              onClick={() => setAddKidOpen(true)}
-              className="w-full rounded-2xl py-4 text-center text-sm transition-colors hover:bg-amber-50"
-              style={{
-                border: "2px dashed #D5C5A0",
-                color: "#9B7A5A",
-                fontFamily: "'Lora', serif",
-              }}
-            >
-              + Add a child
-            </button>
+        {/* Children list */}
+        {state.kids.length > 0 && (
+          <div style={{ borderTop: `1px solid ${T.border}` }}>
+            {state.kids.map((kid) => {
+              const kidMs = state.measurements
+                .filter((m) => m.kidId === kid.id)
+                .sort((a, b) => b.date.localeCompare(a.date));
+              const latest = kidMs[0];
+              const needsMeasure = kidsNeedingMeasurement.some((k) => k.id === kid.id);
+
+              return (
+                <button
+                  key={kid.id}
+                  onClick={() => onSelectKid(kid)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 14,
+                    padding: "14px 0",
+                    borderBottom: `1px solid ${T.border}`,
+                    background: "transparent",
+                    border: "none",
+                    borderBottomColor: T.border,
+                    borderBottomWidth: 1,
+                    borderBottomStyle: "solid",
+                    width: "100%",
+                    cursor: "pointer",
+                    textAlign: "left",
+                  }}
+                >
+                  {/* Avatar */}
+                  <div
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 11,
+                      background: kid.color,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontWeight: 700,
+                      fontSize: 18,
+                      color: "#fff",
+                    }}
+                  >
+                    {kid.name[0].toUpperCase()}
+                  </div>
+
+                  {/* Info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 15, color: T.text }}>
+                        {kid.name}
+                      </span>
+                      {needsMeasure && (
+                        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 500, color: sColor, background: bgTint, border: `1px solid ${sColor}40`, borderRadius: 6, padding: "2px 7px" }}>
+                          measure now
+                        </span>
+                      )}
+                    </div>
+                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: T.textSm }}>
+                      {kidMs.length} {kidMs.length === 1 ? "mark" : "marks"}
+                      {latest ? ` · ${fmtHeight(latest.heightCm, state.units)}` : ""}
+                    </span>
+                  </div>
+
+                  <span style={{ color: T.textSm, fontSize: 20, lineHeight: 1 }}>›</span>
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
 
-      {/* Add Kid Modal */}
-      <AddKidModal
-        open={addKidOpen}
-        onClose={() => setAddKidOpen(false)}
-        onAdd={handleAddKid}
-      />
+      {/* Fixed bottom CTA */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: 0,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "100%",
+          maxWidth: 480,
+          background: `linear-gradient(to top, ${T.bg} 60%, transparent)`,
+          paddingTop: 24,
+          paddingBottom: 24,
+          paddingLeft: 20,
+          paddingRight: 20,
+          zIndex: 10,
+          pointerEvents: "none",
+        }}
+      >
+        <button
+          onClick={() => setAddKidOpen(true)}
+          style={{
+            pointerEvents: "auto",
+            width: "100%",
+            background: "#2196F3",
+            color: "#fff",
+            fontFamily: "'DM Sans', sans-serif",
+            fontWeight: 600,
+            fontSize: 15,
+            borderRadius: 14,
+            padding: "14px 0",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          Add Your Child
+        </button>
+      </div>
 
+      <AddKidModal open={addKidOpen} onClose={() => setAddKidOpen(false)} onAdd={handleAddKid} />
     </div>
   );
 }

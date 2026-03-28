@@ -1,28 +1,44 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { AppState, Kid, Measurement } from "../types";
 import { fmtHeight } from "../utils/units";
 import AddMeasurementModal from "../components/AddMeasurementModal";
 import LogView from "../components/LogView";
 import WallView from "../components/WallView";
+import GrowthChart from "../components/GrowthChart";
+import { T } from "../constants";
 
-type Tab = "wall" | "log";
+type Tab = "wall" | "growth" | "log";
 
 type Props = {
   kid: Kid;
   state: AppState;
   onStateChange: (s: AppState) => void;
   onBack: () => void;
-  initialTab?: Tab;
+  autoOpenAdd?: boolean;
 };
 
-export default function KidScreen({ kid, state, onStateChange, onBack, initialTab = "wall" }: Props) {
-  const [tab, setTab] = useState<Tab>(initialTab);
-  const [addOpen, setAddOpen] = useState(false);
+export default function KidScreen({ kid, state, onStateChange, onBack, autoOpenAdd = false }: Props) {
+  const [tab, setTab] = useState<Tab>("wall");
+  const [addOpen, setAddOpen] = useState(autoOpenAdd);
 
   const kidMeasurements = state.measurements.filter((m) => m.kidId === kid.id);
-  const latest = [...kidMeasurements].sort((a, b) => b.date.localeCompare(a.date))[0];
 
-  function handleAddMeasurement(m: Measurement) {
+  const sorted = useMemo(
+    () => [...kidMeasurements].sort((a, b) => a.date.localeCompare(b.date)),
+    [kidMeasurements]
+  );
+
+  const latest = sorted[sorted.length - 1] ?? null;
+  const previous = sorted.length > 1 ? sorted[sorted.length - 2] : null;
+
+  const delta = previous && latest ? latest.heightCm - previous.heightCm : null;
+  const deltaFmt = delta !== null
+    ? state.units.height === "cm"
+      ? `+${Math.round(delta)} cm`
+      : `+${(delta / 2.54).toFixed(1)}″`
+    : null;
+
+  function handleAdd(m: Measurement) {
     onStateChange({ ...state, measurements: [...state.measurements, m] });
   }
 
@@ -32,89 +48,137 @@ export default function KidScreen({ kid, state, onStateChange, onBack, initialTa
 
   const tabs: { id: Tab; label: string }[] = [
     { id: "wall", label: "Wall" },
+    { id: "growth", label: "Growth" },
     { id: "log", label: "Log" },
   ];
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#F9F3E8" }}>
+    <div style={{ background: T.bg, minHeight: "100svh", display: "flex", flexDirection: "column" }}>
+
       {/* Header */}
-      <div
-        className="px-5 pt-12 pb-5 flex-shrink-0"
-        style={{
-          background: "linear-gradient(180deg, #EDE0C4 0%, #F9F3E8 100%)",
-          borderBottom: "1px solid #E5D9BC",
-        }}
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <button
-            onClick={onBack}
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-colors hover:bg-amber-100"
-            style={{ background: "#E5D9BC", color: "#2C1810" }}
-            aria-label="Back"
-          >
-            ←
-          </button>
+      <div style={{ paddingTop: 52, paddingLeft: 20, paddingRight: 20, background: T.bg }}>
+        {/* Back */}
+        <button
+          onClick={onBack}
+          style={{ background: "none", border: "none", fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: T.textSm, cursor: "pointer", padding: "0 0 18px", display: "flex", alignItems: "center", gap: 4 }}
+        >
+          ← All children
+        </button>
+
+        {/* Kid row */}
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 20 }}>
           <div
-            className="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold"
-            style={{ background: kid.color, fontFamily: "'Playfair Display', serif" }}
+            style={{
+              width: 52,
+              height: 52,
+              borderRadius: 14,
+              background: kid.color,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#fff",
+              fontFamily: "'DM Sans', sans-serif",
+              fontWeight: 700,
+              fontSize: 22,
+              flexShrink: 0,
+            }}
           >
             {kid.name[0].toUpperCase()}
           </div>
-          <h1
-            className="text-2xl font-bold italic flex-1"
-            style={{ color: "#2C1810", fontFamily: "'Playfair Display', serif" }}
-          >
-            {kid.name}
-          </h1>
-          <button
-            onClick={() => setAddOpen(true)}
-            className="px-4 py-2 rounded-xl text-sm font-semibold transition-opacity hover:opacity-90"
-            style={{ background: kid.color, color: "#fff", fontFamily: "'Lora', serif" }}
-          >
-            + Mark
-          </button>
+          <div>
+            <h1
+              style={{
+                fontFamily: "'Fredoka', sans-serif",
+                fontWeight: 600,
+                fontSize: 30,
+                color: T.text,
+                margin: "0 0 4px",
+                lineHeight: 1,
+              }}
+            >
+              {kid.name}
+            </h1>
+            {latest && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: T.textMd }}>
+                  {fmtHeight(latest.heightCm, state.units)}
+                </span>
+                {deltaFmt && (
+                  <span
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: "#2D8653",
+                      background: "#EBF7F0",
+                      borderRadius: 6,
+                      padding: "2px 8px",
+                    }}
+                  >
+                    {deltaFmt}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Stats row */}
-        {latest && (
-          <div className="flex gap-4">
-            <div>
-              <p className="text-xs" style={{ color: "#9B7A5A", fontFamily: "'Lora', serif" }}>Latest height</p>
-              <p className="text-base font-semibold" style={{ color: "#2C1810", fontFamily: "'Playfair Display', serif" }}>
-                {fmtHeight(latest.heightCm, state.units)}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs" style={{ color: "#9B7A5A", fontFamily: "'Lora', serif" }}>Marks</p>
-              <p className="text-base font-semibold" style={{ color: "#2C1810", fontFamily: "'Playfair Display', serif" }}>
-                {kidMeasurements.length}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Tabs */}
-        <div className="flex gap-1 mt-4">
+        {/* Tab bar */}
+        <div
+          style={{
+            display: "flex",
+            marginLeft: -20,
+            marginRight: -20,
+            paddingLeft: 20,
+            borderBottom: `1px solid ${T.border}`,
+          }}
+        >
           {tabs.map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className="px-4 py-2 rounded-full text-sm transition-colors"
               style={{
-                background: tab === t.id ? "#2C1810" : "transparent",
-                color: tab === t.id ? "#F9F3E8" : "#9B7A5A",
-                fontFamily: "'Lora', serif",
-                border: tab === t.id ? "none" : "1px solid #D5C5A0",
+                background: "none",
+                border: "none",
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 14,
+                fontWeight: tab === t.id ? 600 : 400,
+                color: tab === t.id ? T.text : T.textSm,
+                padding: "10px 16px",
+                cursor: "pointer",
+                position: "relative",
               }}
             >
               {t.label}
+              {tab === t.id && (
+                <span
+                  style={{
+                    position: "absolute",
+                    bottom: -1,
+                    left: 0,
+                    right: 0,
+                    height: 2,
+                    background: kid.color,
+                    borderRadius: 2,
+                  }}
+                />
+              )}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Tab content */}
-      <div className={`flex-1 overflow-y-auto ${tab === "wall" ? "pt-4" : "px-5 pt-5"}`}>
+      {/* Content */}
+      <div
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          ...(tab === "wall"
+            ? { paddingBottom: 100 }
+            : { padding: "20px 20px 100px" }
+          ),
+        }}
+      >
         {tab === "wall" && (
           <WallView
             kid={kid}
@@ -123,7 +187,13 @@ export default function KidScreen({ kid, state, onStateChange, onBack, initialTa
             onAddMeasurement={() => setAddOpen(true)}
           />
         )}
-
+        {tab === "growth" && (
+          <GrowthChart
+            kid={kid}
+            measurements={sorted}
+            units={state.units}
+          />
+        )}
         {tab === "log" && (
           <LogView
             kid={kid}
@@ -135,13 +205,51 @@ export default function KidScreen({ kid, state, onStateChange, onBack, initialTa
         )}
       </div>
 
-      {/* Add Measurement Modal */}
+      {/* Fixed bottom measure button */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: 0,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "100%",
+          maxWidth: 480,
+          background: `linear-gradient(to top, ${T.bg} 60%, transparent)`,
+          paddingTop: 24,
+          paddingBottom: 24,
+          paddingLeft: 20,
+          paddingRight: 20,
+          zIndex: 10,
+          pointerEvents: "none",
+        }}
+      >
+        <button
+          onClick={() => setAddOpen(true)}
+          style={{
+            pointerEvents: "auto",
+            width: "100%",
+            background: kid.color,
+            color: "#fff",
+            fontFamily: "'DM Sans', sans-serif",
+            fontWeight: 600,
+            fontSize: 15,
+            borderRadius: 14,
+            padding: "14px 0",
+            border: "none",
+            cursor: "pointer",
+            boxShadow: `0 4px 20px ${kid.color}50`,
+          }}
+        >
+          Measure {kid.name}
+        </button>
+      </div>
+
       <AddMeasurementModal
         open={addOpen}
         onClose={() => setAddOpen(false)}
         kid={kid}
         units={state.units}
-        onAdd={handleAddMeasurement}
+        onAdd={handleAdd}
       />
     </div>
   );
