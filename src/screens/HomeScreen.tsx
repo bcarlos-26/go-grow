@@ -44,19 +44,19 @@ export default function HomeScreen({ state, onStateChange, onSelectKid, onAddMea
   return (
     <div style={{ background: T.bg, minHeight: "100svh", paddingBottom: 100 }}>
       {/* Title area */}
-      <div style={{ paddingTop: "25vh", paddingLeft: 24, paddingRight: 24 }}>
+      <div style={{ paddingTop: "25vh", paddingLeft: 24, paddingRight: 24, textAlign: "center" }}>
         {/* Go Grow title */}
-        <div style={{ display: "flex", alignItems: "baseline", flexWrap: "nowrap", whiteSpace: "nowrap", marginBottom: 8 }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", flexWrap: "nowrap", whiteSpace: "nowrap", marginBottom: 8 }}>
           {TITLE_LETTERS.map((l, i) =>
             l.char === " " ? (
-              <span key={i} style={{ width: 14, display: "inline-block" }} />
+              <span key={i} style={{ width: 18, display: "inline-block" }} />
             ) : (
               <span
                 key={i}
                 style={{
                   fontFamily: "'Fredoka', sans-serif",
                   fontWeight: 600,
-                  fontSize: "min(72px, 18vw)",
+                  fontSize: "min(96px, 24vw)",
                   color: l.color,
                   lineHeight: 1,
                 }}
@@ -68,7 +68,7 @@ export default function HomeScreen({ state, onStateChange, onSelectKid, onAddMea
         </div>
 
         {/* Subtitle */}
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400, fontSize: 17, color: T.textMd, margin: "0 0 32px" }}>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400, fontSize: 17, color: T.textMd, margin: "0 0 32px", textAlign: "center" }}>
           Record your child's growth over time
         </p>
 
